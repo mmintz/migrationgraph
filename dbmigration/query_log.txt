@@ -1,0 +1,64 @@
+Table: tenant
+SELECT DISTINCT * FROM "partner"."tenant"  WHERE "partner"."tenant"."id" = 'e3a08351-7587-488f-8523-9d1d4d251b4a'
+Table: campaign
+SELECT DISTINCT "partner"."campaign".* FROM "partner"."tenant"    LEFT JOIN "partner"."campaign" ON "partner"."tenant"."id" = "partner"."campaign"."tenant_id" WHERE "partner"."tenant"."id" = 'e3a08351-7587-488f-8523-9d1d4d251b4a' AND "partner"."campaign"."tenant_id" IS NOT NULL
+Table: commission_plan
+SELECT DISTINCT "partner"."commission_plan".* FROM "partner"."tenant"    LEFT JOIN "partner"."commission_plan" ON "partner"."tenant"."id" = "partner"."commission_plan"."tenant_id" WHERE "partner"."tenant"."id" = 'e3a08351-7587-488f-8523-9d1d4d251b4a' AND "partner"."commission_plan"."tenant_id" IS NOT NULL
+Table: customer
+SELECT DISTINCT "partner"."customer".* FROM "partner"."tenant"    LEFT JOIN "partner"."customer" ON "partner"."tenant"."id" = "partner"."customer"."tenant_id" WHERE "partner"."tenant"."id" = 'e3a08351-7587-488f-8523-9d1d4d251b4a' AND "partner"."customer"."tenant_id" IS NOT NULL
+Table: email_template
+SELECT DISTINCT "partner"."email_template".* FROM "partner"."tenant"    LEFT JOIN "partner"."email_template" ON "partner"."tenant"."id" = "partner"."email_template"."tenant_id" WHERE "partner"."tenant"."id" = 'e3a08351-7587-488f-8523-9d1d4d251b4a' AND "partner"."email_template"."tenant_id" IS NOT NULL
+Table: gui_layout
+SELECT DISTINCT "partner"."gui_layout".* FROM "partner"."tenant"    LEFT JOIN "partner"."gui_layout" ON "partner"."tenant"."id" = "partner"."gui_layout"."tenant_id" WHERE "partner"."tenant"."id" = 'e3a08351-7587-488f-8523-9d1d4d251b4a' AND "partner"."gui_layout"."tenant_id" IS NOT NULL
+Table: gui_menu
+SELECT DISTINCT "partner"."gui_menu".* FROM "partner"."tenant"    LEFT JOIN "partner"."gui_menu" ON "partner"."tenant"."id" = "partner"."gui_menu"."tenant_id" WHERE "partner"."tenant"."id" = 'e3a08351-7587-488f-8523-9d1d4d251b4a' AND "partner"."gui_menu"."tenant_id" IS NOT NULL
+Table: landing_page
+SELECT DISTINCT "partner"."landing_page".* FROM "partner"."tenant"    LEFT JOIN "partner"."landing_page" ON "partner"."tenant"."id" = "partner"."landing_page"."tenant_id" WHERE "partner"."tenant"."id" = 'e3a08351-7587-488f-8523-9d1d4d251b4a' AND "partner"."landing_page"."tenant_id" IS NOT NULL
+Table: offer
+SELECT DISTINCT "partner"."offer".* FROM "partner"."tenant"    LEFT JOIN "partner"."offer" ON "partner"."tenant"."id" = "partner"."offer"."tenant_id" WHERE "partner"."tenant"."id" = 'e3a08351-7587-488f-8523-9d1d4d251b4a' AND "partner"."offer"."tenant_id" IS NOT NULL
+Table: queue
+SELECT DISTINCT "partner"."queue".* FROM "partner"."tenant"    LEFT JOIN "partner"."queue" ON "partner"."tenant"."id" = "partner"."queue"."tenant_id" WHERE "partner"."tenant"."id" = 'e3a08351-7587-488f-8523-9d1d4d251b4a' AND "partner"."queue"."tenant_id" IS NOT NULL
+Table: server
+SELECT DISTINCT "partner"."server".* FROM "partner"."tenant"    LEFT JOIN "partner"."server" ON "partner"."tenant"."id" = "partner"."server"."tenant_id" WHERE "partner"."tenant"."id" = 'e3a08351-7587-488f-8523-9d1d4d251b4a' AND "partner"."server"."tenant_id" IS NOT NULL
+Table: tenant_smtp_settings
+SELECT DISTINCT "partner"."tenant_smtp_settings".* FROM "partner"."tenant"    LEFT JOIN "partner"."tenant_smtp_settings" ON "partner"."tenant"."id" = "partner"."tenant_smtp_settings"."tenant_id" WHERE "partner"."tenant"."id" = 'e3a08351-7587-488f-8523-9d1d4d251b4a' AND "partner"."tenant_smtp_settings"."tenant_id" IS NOT NULL
+Table: wallet_settings
+SELECT DISTINCT "partner"."wallet_settings".* FROM "partner"."tenant"    LEFT JOIN "partner"."wallet_settings" ON "partner"."tenant"."id" = "partner"."wallet_settings"."tenant_id" WHERE "partner"."tenant"."id" = 'e3a08351-7587-488f-8523-9d1d4d251b4a' AND "partner"."wallet_settings"."tenant_id" IS NOT NULL
+Table: customer_campaign
+SELECT DISTINCT "partner"."customer_campaign".* FROM "partner"."tenant"   LEFT JOIN "partner"."campaign" ON "partner"."tenant"."id" = "partner"."campaign"."tenant_id"  LEFT JOIN "partner"."customer_campaign" ON "partner"."campaign"."id" = "partner"."customer_campaign"."campaign_id" WHERE "partner"."tenant"."id" = 'e3a08351-7587-488f-8523-9d1d4d251b4a' AND "partner"."customer_campaign"."campaign_id" IS NOT NULL
+Table: marketing_tool
+SELECT DISTINCT "partner"."marketing_tool".* FROM "partner"."tenant"   LEFT JOIN "partner"."campaign" ON "partner"."tenant"."id" = "partner"."campaign"."tenant_id"  LEFT JOIN "partner"."marketing_tool" ON "partner"."campaign"."id" = "partner"."marketing_tool"."campaign_id" WHERE "partner"."tenant"."id" = 'e3a08351-7587-488f-8523-9d1d4d251b4a' AND "partner"."marketing_tool"."campaign_id" IS NOT NULL
+Table: commission_plan_offer
+SELECT DISTINCT "partner"."commission_plan_offer".* FROM "partner"."tenant"   LEFT JOIN "partner"."commission_plan" ON "partner"."tenant"."id" = "partner"."commission_plan"."tenant_id"  LEFT JOIN "partner"."commission_plan_offer" ON "partner"."commission_plan"."id" = "partner"."commission_plan_offer"."commission_plan_id" WHERE "partner"."tenant"."id" = 'e3a08351-7587-488f-8523-9d1d4d251b4a' AND "partner"."commission_plan_offer"."commission_plan_id" IS NOT NULL
+Table: commission_plan_trade_group
+SELECT DISTINCT "partner"."commission_plan_trade_group".* FROM "partner"."tenant"   LEFT JOIN "partner"."commission_plan" ON "partner"."tenant"."id" = "partner"."commission_plan"."tenant_id"  LEFT JOIN "partner"."commission_plan_trade_group" ON "partner"."commission_plan"."id" = "partner"."commission_plan_trade_group"."commission_plan_id" WHERE "partner"."tenant"."id" = 'e3a08351-7587-488f-8523-9d1d4d251b4a' AND "partner"."commission_plan_trade_group"."commission_plan_id" IS NOT NULL
+Table: account
+SELECT DISTINCT "partner"."account".* FROM "partner"."tenant"   LEFT JOIN "partner"."customer" ON "partner"."tenant"."id" = "partner"."customer"."tenant_id"  LEFT JOIN "partner"."account" ON "partner"."customer"."id" = "partner"."account"."customer_id" WHERE "partner"."tenant"."id" = 'e3a08351-7587-488f-8523-9d1d4d251b4a' AND "partner"."account"."customer_id" IS NOT NULL
+Table: marketing_product
+SELECT DISTINCT "partner"."marketing_product".* FROM "partner"."tenant"  LEFT JOIN "partner"."customer" ON "partner"."tenant"."id" = "partner"."customer"."tenant_id" LEFT JOIN "partner"."marketing_product" ON "partner"."customer"."marketing_product_id" = "partner"."marketing_product"."id" WHERE "partner"."tenant"."id" = 'e3a08351-7587-488f-8523-9d1d4d251b4a' AND "partner"."marketing_product"."id" IS NOT NULL
+Table: wallet
+SELECT DISTINCT "partner"."wallet".* FROM "partner"."tenant"   LEFT JOIN "partner"."customer" ON "partner"."tenant"."id" = "partner"."customer"."tenant_id"  LEFT JOIN "partner"."wallet" ON "partner"."customer"."id" = "partner"."wallet"."customer_id" WHERE "partner"."tenant"."id" = 'e3a08351-7587-488f-8523-9d1d4d251b4a' AND "partner"."wallet"."customer_id" IS NOT NULL
+Table: gui_layout_item
+SELECT DISTINCT "partner"."gui_layout_item".* FROM "partner"."tenant"   LEFT JOIN "partner"."gui_layout" ON "partner"."tenant"."id" = "partner"."gui_layout"."tenant_id"  LEFT JOIN "partner"."gui_layout_item" ON "partner"."gui_layout"."id" = "partner"."gui_layout_item"."gui_layout_id" WHERE "partner"."tenant"."id" = 'e3a08351-7587-488f-8523-9d1d4d251b4a' AND "partner"."gui_layout_item"."gui_layout_id" IS NOT NULL
+Table: cpa_offer_settings
+SELECT DISTINCT "partner"."cpa_offer_settings".* FROM "partner"."tenant"   LEFT JOIN "partner"."offer" ON "partner"."tenant"."id" = "partner"."offer"."tenant_id"  LEFT JOIN "partner"."cpa_offer_settings" ON "partner"."offer"."id" = "partner"."cpa_offer_settings"."offer_id" WHERE "partner"."tenant"."id" = 'e3a08351-7587-488f-8523-9d1d4d251b4a' AND "partner"."cpa_offer_settings"."offer_id" IS NOT NULL
+Table: offer_symbol_group
+SELECT DISTINCT "partner"."offer_symbol_group".* FROM "partner"."tenant"   LEFT JOIN "partner"."offer" ON "partner"."tenant"."id" = "partner"."offer"."tenant_id"  LEFT JOIN "partner"."offer_symbol_group" ON "partner"."offer"."id" = "partner"."offer_symbol_group"."offer_id" WHERE "partner"."tenant"."id" = 'e3a08351-7587-488f-8523-9d1d4d251b4a' AND "partner"."offer_symbol_group"."offer_id" IS NOT NULL
+Table: deposit
+SELECT DISTINCT "partner"."deposit".* FROM "partner"."tenant"   LEFT JOIN "partner"."server" ON "partner"."tenant"."id" = "partner"."server"."tenant_id"  LEFT JOIN "partner"."deposit" ON "partner"."server"."id" = "partner"."deposit"."server_id" WHERE "partner"."tenant"."id" = 'e3a08351-7587-488f-8523-9d1d4d251b4a' AND "partner"."deposit"."server_id" IS NOT NULL
+Table: order
+SELECT DISTINCT "partner"."order".* FROM "partner"."tenant"   LEFT JOIN "partner"."server" ON "partner"."tenant"."id" = "partner"."server"."tenant_id"  LEFT JOIN "partner"."order" ON "partner"."server"."id" = "partner"."order"."server_id" WHERE "partner"."tenant"."id" = 'e3a08351-7587-488f-8523-9d1d4d251b4a' AND "partner"."order"."server_id" IS NOT NULL
+Table: order_rollup
+SELECT DISTINCT "partner"."order_rollup".* FROM "partner"."tenant"   LEFT JOIN "partner"."server" ON "partner"."tenant"."id" = "partner"."server"."tenant_id"  LEFT JOIN "partner"."order_rollup" ON "partner"."server"."id" = "partner"."order_rollup"."server_id" WHERE "partner"."tenant"."id" = 'e3a08351-7587-488f-8523-9d1d4d251b4a' AND "partner"."order_rollup"."server_id" IS NOT NULL
+Table: rate
+SELECT DISTINCT "partner"."rate".* FROM "partner"."tenant"   LEFT JOIN "partner"."server" ON "partner"."tenant"."id" = "partner"."server"."tenant_id"  LEFT JOIN "partner"."rate" ON "partner"."server"."id" = "partner"."rate"."server_id" WHERE "partner"."tenant"."id" = 'e3a08351-7587-488f-8523-9d1d4d251b4a' AND "partner"."rate"."server_id" IS NOT NULL
+Table: symbol_group
+SELECT DISTINCT "partner"."symbol_group".* FROM "partner"."tenant"   LEFT JOIN "partner"."server" ON "partner"."tenant"."id" = "partner"."server"."tenant_id"  LEFT JOIN "partner"."symbol_group" ON "partner"."server"."id" = "partner"."symbol_group"."server_id" WHERE "partner"."tenant"."id" = 'e3a08351-7587-488f-8523-9d1d4d251b4a' AND "partner"."symbol_group"."server_id" IS NOT NULL
+Table: trade_group
+SELECT DISTINCT "partner"."trade_group".* FROM "partner"."tenant"   LEFT JOIN "partner"."server" ON "partner"."tenant"."id" = "partner"."server"."tenant_id"  LEFT JOIN "partner"."trade_group" ON "partner"."server"."id" = "partner"."trade_group"."server_id" WHERE "partner"."tenant"."id" = 'e3a08351-7587-488f-8523-9d1d4d251b4a' AND "partner"."trade_group"."server_id" IS NOT NULL
+Table: marketing_product_tracking
+SELECT DISTINCT "partner"."marketing_product_tracking".* FROM "partner"."tenant"   LEFT JOIN "partner"."customer" ON "partner"."tenant"."id" = "partner"."customer"."tenant_id" LEFT JOIN "partner"."marketing_product" ON "partner"."customer"."marketing_product_id" = "partner"."marketing_product"."id"  LEFT JOIN "partner"."marketing_product_tracking" ON "partner"."marketing_product"."id" = "partner"."marketing_product_tracking"."marketing_product_id" WHERE "partner"."tenant"."id" = 'e3a08351-7587-488f-8523-9d1d4d251b4a' AND "partner"."marketing_product_tracking"."marketing_product_id" IS NOT NULL
+Table: symbol
+SELECT DISTINCT "partner"."symbol".* FROM "partner"."tenant"   LEFT JOIN "partner"."server" ON "partner"."tenant"."id" = "partner"."server"."tenant_id" LEFT JOIN "partner"."symbol_group" ON "partner"."server"."id" = "partner"."symbol_group"."server_id"  LEFT JOIN "partner"."symbol" ON "partner"."symbol_group"."id" = "partner"."symbol"."symbol_group_id" WHERE "partner"."tenant"."id" = 'e3a08351-7587-488f-8523-9d1d4d251b4a' AND "partner"."symbol"."symbol_group_id" IS NOT NULL
+Table: trade_group_settings
+SELECT DISTINCT "partner"."trade_group_settings".* FROM "partner"."tenant"   LEFT JOIN "partner"."server" ON "partner"."tenant"."id" = "partner"."server"."tenant_id" LEFT JOIN "partner"."symbol_group" ON "partner"."server"."id" = "partner"."symbol_group"."server_id"  LEFT JOIN "partner"."trade_group_settings" ON "partner"."symbol_group"."id" = "partner"."trade_group_settings"."symbol_group_id" WHERE "partner"."tenant"."id" = 'e3a08351-7587-488f-8523-9d1d4d251b4a' AND "partner"."trade_group_settings"."symbol_group_id" IS NOT NULL

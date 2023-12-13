@@ -1,0 +1,670 @@
+%pip install pandas
+%pip install sqlalchemy 
+%pip install networkx
+%pip install matplotlib
+
+
+import os
+import pandas as pd
+import psycopg2
+import io
+import csv
+import json
+import datetime
+import decimal
+import sqlalchemy
+import networkx as nx
+from sqlalchemy import create_engine, MetaData, inspect, event, text
+from collections import deque
+from queue import Queue
+from collections import deque
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+import pandas as pd
+# Database connection parameters
+# Database connection parameters are now retrieved from environment variables
+db_params = {
+    'host': os.getenv('DB_HOST', 'default_host'),
+    'dbname': os.getenv('DB_NAME', 'default_db_name'),
+    'user': os.getenv('DB_USER', 'default_user'),
+    'password': os.getenv('DB_PASSWORD', 'default_password'),
+    'port': int(os.getenv('DB_PORT', '5432'))  # Default port number if not specified
+}
+
+def get_table_columns(engine, schema_name, table_name, excluded_columns):
+    """
+    Retrieve column names for a given table excluding certain columns.
+    """
+    query = sqlalchemy.text("""
+        SELECT column_name 
+        FROM information_schema.columns 
+        WHERE table_schema = :schema_name AND table_name = :table_name;
+    """)
+
+    with engine.connect() as conn:
+        result = conn.execute(query, {'schema_name': schema_name, 'table_name': table_name})
+        columns = [row[0] for row in result.fetchall() if row[0] not in excluded_columns]
+    
+    return columns
+def construct_select_clause(schema_name, table_name, columns):
+    """
+    Construct a SELECT clause for a given table.
+    """
+    return ', '.join([f'"{schema_name}"."{table_name}"."{col}"' for col in columns])
+
+# Adjusted construct_join_query function
+# Adjusted construct_join_query function
+# Adjusted construct_join_query function to include previous joins and where clause
+def construct_join_query(schema_name, starting_table, joined_table, starting_table_column, joined_table_column, key_value, previous_joins, where_clause):
+    """
+    Construct a full JOIN query with all columns from the joined table, incorporating the schema name, previous joins, and where clause.
+    Ensure each table is only joined once.
+    """
+    # Construct the new join condition
+    new_join_condition = f'LEFT JOIN \"{schema_name}\".\"{joined_table}\" ON \"{schema_name}\".\"{starting_table}\".\"{starting_table_column}\" = \"{schema_name}\".\"{joined_table}\".\"{joined_table_column}\"'
+    
+    # Combine previous joins with the new join condition
+    combined_joins = f"{previous_joins} {new_join_condition}"
+
+    # Construct the full join query string
+    full_join_query_str = f"SELECT DISTINCT \"{schema_name}\".\"{joined_table}\".* FROM \"{schema_name}\".\"{starting_table}\" {combined_joins} {where_clause}"
+    return text(full_join_query_str)
+# Establishing the connection
+db_url = f"postgresql+psycopg2://{db_params['user']}:{db_params['password']}@{db_params['host']}:{db_params['port']}/{db_params['dbname']}"
+engine = create_engine(db_url)
+
+       
+    
+
+# Set the schema for this session
+schema_name = os.getenv('DB_SCHEMA', 'default_schema')  # Retrieve schema name from environment variable
+
+@event.listens_for(engine, "connect")
+def set_search_path(dbapi_connection, connection_record):
+    cursor = dbapi_connection.cursor()
+    cursor.execute(f"SET search_path TO {schema_name};")
+    cursor.close()
+# with conn.cursor() as cur:
+#     cur.execute(f"SET search_path TO {schema_name};")
+
+# Define a default JSON object for fields that are None
+default_json = {}  # Update this with a suitable default JSON object
+empty_placeholder = "\\N"  # Placeholder for empty fields in .dump file
+
+with engine.connect() as conn:
+        print("Successfully connected to the database!")
+        conn.execute(text(f"SET search_path TO {schema_name};"))
+def export_table_data(query, params, connections, common_dump_file_name, schema_name, table_name, export_format='text', export_path='/app/outputs', log_file_name='query_log.txt',tables_file='tables_log.txt', CHUNK_SIZE=10000):
+    if not os.path.exists(export_path):
+        os.makedirs(export_path)
+
+    log_file_path = os.path.join(export_path, log_file_name)
+    dump_file_path = os.path.join(export_path, f"{common_dump_file_name}.csv")
+    tables_file_path = os.path.join(export_path, tables_file)
+
+    with open(log_file_path, 'a', encoding='utf-8') as log_file:
+        # Convert the query object to a string
+        query_str = str(query)
+
+        # Manually replace the parameter placeholder with its value
+        # Use repr() to handle string parameters correctly by adding quotes
+        param_value = repr(params['key_value']) if isinstance(params['key_value'], str) else str(params['key_value'])
+        query_str_with_params = query_str.replace(":key_value", param_value)
+
+        # Write the modified query to the log file
+        log_file.write(f"Table: {table_name}\n{query_str_with_params}\n")
+
+    with open(tables_file_path, 'a', encoding='utf-8') as tables_file:
+        # Write the modified query to the log file
+        #log_file.write(f"{query_str_with_params}\n")
+        tables_file.write(f"Table: {table_name}\n")
+  
+    with engine.connect() as connection:
+        try:
+            first_chunk = True
+            print(f"running for table -> {table_name} chunks with params {params} ----the query {query}")
+            for chunk in pd.read_sql_query(query, connection, params=params, chunksize=CHUNK_SIZE):
+                if first_chunk:
+                    # Write column names and COPY command only for the first chunk
+                    column_names = '\t '.join(chunk.columns)
+                    header_str = f"{schema_name}.{table_name}\n{column_names}\n"  # Removed the closing parenthesis
+                    first_chunk = False
+                else:
+                    header_str = ''
+
+                chunk.dropna(how='all', inplace=True)
+
+                # Convert the DataFrame to a CSV formatted string
+                csv_string = chunk.to_csv(sep='\t', index=False, header=False)
+
+                # Append the header and CSV string to the dump file
+                with open(dump_file_path, 'a', encoding='utf-8') as dump_file:
+                    dump_file.write(header_str + csv_string)
+
+            # # Write the end-of-data marker
+            with open(dump_file_path, 'a', encoding='utf-8') as dump_file:
+                dump_file.write("\n")
+
+        except Exception as e:
+            print(f"An error occurred: {e}")
+
+    print(f"Data appended to {dump_file_path} with query logged in {log_file_path}")
+
+    
+
+def generate_truncate_sql(export_path, related_tables):
+    truncate_file_path = os.path.join(export_path, "truncate_tables.sql")
+    with open(truncate_file_path, 'w', encoding='utf-8') as truncate_file:
+        for table in related_tables:
+            truncate_file.write(f"TRUNCATE TABLE {schema_name}.{table} restart identity cascade;\n")
+    print(f"Truncate script created at {truncate_file_path}")
+
+
+def get_key_value(table, column, value, connection):
+    """
+    Fetch the corresponding key value from a table based on a column and its value.
+    """
+    query = f"SELECT {column} FROM {table} WHERE {column} = %s;"
+    with connection.cursor() as cur:
+        cur.execute(query, [value])
+        result = cur.fetchone()
+        return result[0] if result else None
+
+
+
+def find_related_tables_bfs(engine, starting_table, start_table_key_column, key_value, common_dump_file_name, schema_name, excluded_tables=None, excluded_columns=None):
+    if excluded_tables is None:
+        excluded_tables = set()
+    if excluded_columns is None:
+        excluded_columns = {'modified_by_id', 'created_by_id'}
+
+    queue = deque([(starting_table, '')])
+    visited = set()
+    table_queries = {}  # Store tuples of (table, query)
+    while queue:
+        current_table, previous_joins = queue.popleft()
+
+        where_clause = f'WHERE "{schema_name}"."{starting_table}"."{start_table_key_column}" = :key_value'
+       
+        if current_table == starting_table:
+            visited.add(current_table)
+            initial_query_str = f'SELECT DISTINCT * FROM "{schema_name}"."{current_table}"  WHERE "{schema_name}"."{starting_table}"."{start_table_key_column}" = :key_value'
+            # Convert the string query to a SQLAlchemy text object
+            initial_query = text(initial_query_str)
+            with engine.connect() as conn:
+                #export_table_data(initial_query, {'key_value': key_value}, conn, common_dump_file_name, schema_name, current_table, export_format='text')
+                #table_queries.add((current_table, initial_query))
+                table_queries[current_table] = []
+                table_queries[current_table].append(initial_query_str)
+        foreign_key_query = """
+        SELECT DISTINCT
+            tc.table_name AS primary_table, 
+            kcu.column_name AS primary_column, 
+            ccu.table_name AS foreign_table_name,
+            ccu.column_name AS foreign_column
+        FROM 
+            information_schema.table_constraints AS tc 
+            JOIN information_schema.key_column_usage AS kcu 
+            ON tc.constraint_name = kcu.constraint_name
+            JOIN information_schema.constraint_column_usage AS ccu 
+            ON ccu.constraint_name = tc.constraint_name
+        WHERE 
+            tc.constraint_type = 'FOREIGN KEY' AND 
+            (tc.table_name = :current_table OR ccu.table_name = :current_table);
+        """
+        print(f"Current to process table  TO {current_table} previous JOINS joins: {previous_joins}")
+        with engine.connect() as conn:
+            result = conn.execute(sqlalchemy.text(foreign_key_query), {'current_table': current_table})
+            rows = result.fetchall()
+            print(f"Current to process table  TO {current_table} previous RESULTS FETCHED: {rows}")
+            for row in rows:
+                primary_table, primary_column, foreign_table_name, foreign_column = row
+
+                
+                print(f"Current to process table  TO {current_table} prIMARY: {primary_table}, COL {primary_column} foreign {foreign_table_name} col {foreign_column}")
+                # Skip processing for excluded columns
+                if primary_column in excluded_columns or foreign_column in excluded_columns:
+                    print(f"SKIIIIIIIIIIIIIIIIIIIIIP")
+                    continue
+                if primary_table != current_table: 
+                # Usage of construct_join_query in your code
+                    if primary_table not in visited and primary_table not in excluded_tables:
+                        new_join_condition = f'LEFT JOIN \"{schema_name}\".\"{primary_table}\" ON \"{schema_name}\".\"{foreign_table_name}\".\"{foreign_column}\" = \"{schema_name}\".\"{primary_table}\".\"{primary_column}\"'
+                        #full_join_query = construct_join_query(schema_name, foreign_table_name, primary_table, foreign_column, primary_column, key_value, previous_joins, where_clause)
+                        full_join_query =  f"SELECT DISTINCT \"{schema_name}\".\"{primary_table}\".* FROM \"{schema_name}\".\"{starting_table}\"  {previous_joins}  {new_join_condition} {where_clause} AND \"{schema_name}\".\"{primary_table}\".\"{primary_column}\" IS NOT NULL"
+                        
+                         # Add to table_queries
+                        #table_queries[primary_table] = full_join_query
+                        if primary_table not in table_queries:
+                            table_queries[primary_table] = []
+                            table_queries[primary_table].append(full_join_query)
+                            
+                        # else: 
+                        #     table_queries[primary_table].append('malakies')
+                        next_joins = f"{previous_joins} {new_join_condition}"
+                        print(f"APPENDING TO {primary_table} next joins: {next_joins}")
+                        queue.append((primary_table, next_joins))
+                        visited.add(primary_table)
+                        
+                elif foreign_table_name != current_table:
+                    if foreign_table_name not in visited and foreign_table_name not in excluded_tables:
+                        new_join_condition = f'LEFT JOIN \"{schema_name}\".\"{foreign_table_name}\" ON \"{schema_name}\".\"{primary_table}\".\"{primary_column}\" = \"{schema_name}\".\"{foreign_table_name}\".\"{foreign_column}\"'
+                        #full_join_query = construct_join_query(schema_name, primary_table, foreign_table_name, primary_column, foreign_column, key_value, previous_joins, where_clause)
+                        full_join_query =  f"SELECT DISTINCT \"{schema_name}\".\"{foreign_table_name}\".* FROM \"{schema_name}\".\"{starting_table}\" {previous_joins} {new_join_condition} {where_clause} AND \"{schema_name}\".\"{foreign_table_name}\".\"{foreign_column}\" IS NOT NULL"
+                        # Add to table_queries
+                        #table_queries.add((foreign_table_name, full_join_query))
+                        #table_queries[foreign_table_name] = full_join_query
+
+                        if foreign_table_name not in table_queries:
+                            table_queries[foreign_table_name] = []
+                            table_queries[foreign_table_name].append(full_join_query)
+                            
+                        # else: 
+                        #     table_queries[foreign_table_name].append('malakies')
+                        next_joins = f"{previous_joins} {new_join_condition}"
+                        print(f"APPENDING TO {foreign_table_name} next joins: {next_joins}")
+                        queue.append((foreign_table_name, next_joins))
+                        visited.add(foreign_table_name)
+                    # Process each foreign key relationship
+                    # Your existing logic for handling relationships goes here
+
+    #return visited  # Optionally return the visited set for further analysis
+    return table_queries  # Optionally return the visited set for further analysis
+
+# Usage example
+common_dump_file_name = "brands_dump"
+# Retrieve script parameters from environment variables
+
+db_params = {
+    'host': os.getenv('DB_HOST', 'default_host'),
+    'dbname': os.getenv('DB_NAME', 'default_db_name'),
+    'user': os.getenv('DB_USER', 'default_user'),
+    'password': os.getenv('DB_PASSWORD', 'default_password'),
+    'port': int(os.getenv('DB_PORT', '5432'))  # Default port number if not specified
+}
+def extract_relationships(excluded_tables):
+    relationships = []
+
+    foreign_key_query = """
+    SELECT DISTINCT
+        tc.table_name AS primary_table, 
+        kcu.column_name AS primary_column, 
+        ccu.table_name AS foreign_table_name,
+        ccu.column_name AS foreign_column
+    FROM 
+        information_schema.table_constraints AS tc 
+        JOIN information_schema.key_column_usage AS kcu 
+        ON tc.constraint_name = kcu.constraint_name
+        JOIN information_schema.constraint_column_usage AS ccu 
+        ON ccu.constraint_name = tc.constraint_name
+    WHERE 
+        tc.constraint_type = 'FOREIGN KEY';
+    """
+
+    with engine.connect() as conn:
+        result = conn.execute(sqlalchemy.text(foreign_key_query))
+        for row in result:
+            primary_table, primary_column, foreign_table, foreign_column = row
+
+            # Check if either the primary or foreign table is in the excluded list
+            if primary_table in excluded_tables or foreign_table in excluded_tables:
+                continue  # Skip this relationship
+            relationships.append((primary_table, primary_column, foreign_table, foreign_column))
+
+    return relationships
+
+def generate_relationships_dict(relationships,excluded_columns,starting_table):
+    relationships_dict = {}
+
+    #  # Ensure 'tenant' is included in the dictionary with an empty list
+    # relationships_dict[starting_table] = []
+    for primary_table, primary_column, foreign_table, foreign_column in relationships:
+        if primary_column in excluded_columns or foreign_column in excluded_columns:
+            continue  # Skip this relationship
+        if primary_table not in relationships_dict:
+            relationships_dict[primary_table] = []
+        relationships_dict[primary_table].append((foreign_table, primary_column, foreign_column))
+
+    return relationships_dict
+    
+def find_alternative_paths(table_queries, relations_dict, source_table):
+    existing_paths = {table for table, _ in table_queries}
+    alternative_paths = {}
+
+    for primary_table, relations in relations_dict.items():
+        if primary_table == source_table:
+            for relation in relations:
+                foreign_table = relation[0]
+                if foreign_table not in existing_paths:
+                    # Construct the path
+                    if primary_table not in alternative_paths:
+                        alternative_paths[primary_table] = []
+                    alternative_paths[primary_table].append(foreign_table)
+
+    return alternative_paths
+
+
+def construct_queries_for_alternative_paths(schema_name, alternative_paths, key_column, key_value):
+    alternative_queries = {}
+
+    for primary_table, foreign_tables in alternative_paths.items():
+        for foreign_table in foreign_tables:
+            # Construct the query
+            query = f"""SELECT * FROM "{schema_name}"."{primary_table}"
+                        LEFT JOIN "{schema_name}"."{foreign_table}" 
+                        ON "{schema_name}"."{primary_table}"."{key_column}" = "{schema_name}"."{foreign_table}"."{key_column}"
+                        WHERE "{schema_name}"."{primary_table}"."{key_column}" = '{key_value}'"""
+            if primary_table not in alternative_queries:
+                alternative_queries[primary_table] = []
+            alternative_queries[primary_table].append(query)
+
+    return alternative_queries
+
+def combine_queries(table_queries, alternative_queries):
+    combined_queries = {}
+
+    for table, query in table_queries:
+        combined_query = query
+        if table in alternative_queries:
+            for alt_query in alternative_queries[table]:
+                combined_query += f" UNION {alt_query}"
+        combined_queries[table] = combined_query
+
+    # Adding alternative queries for tables not in table_queries
+    for table, queries in alternative_queries.items():
+        if table not in combined_queries:
+            combined_queries[table] = " UNION ".join(queries)
+
+    return combined_queries
+
+
+def find_all_paths(relationships_dict, start_table, start_column, excluded_tables):
+    # Helper function to add paths to the queue
+    def add_paths(queue, current_path, visited_tables, next_table):
+        for relation in relationships_dict.get(next_table, []):
+            foreign_table, primary_column, foreign_column = relation
+            if foreign_table not in excluded_tables and foreign_table not in visited_tables:
+                new_path = current_path + [f"{next_table}({primary_column}->{foreign_column}) -> {foreign_table}"]
+                queue.append((new_path, visited_tables | {foreign_table}))
+
+    all_paths = []
+    queue = deque([([f"{start_table}({start_column})"], {start_table})])
+
+    while queue:
+        current_path, visited_tables = queue.popleft()
+        current_table = current_path[-1].split(" -> ")[-1].split("(")[0]
+        if current_table not in relationships_dict:
+            all_paths.append(" -> ".join(current_path))
+            continue
+        add_paths(queue, current_path, visited_tables, current_table)
+
+    return all_paths
+# def construct_query_for_path(path, relationships_dict, starting_table, schema_name, key_value):
+#     query_parts = []
+
+#     for i in range(len(path) - 1):
+#         primary_table = path[i]
+#         foreign_table = path[i + 1]
+
+#         # Find the relationship details
+#         for rel in relationships_dict[primary_table]:
+#             if rel[0] == foreign_table:
+#                 primary_column, foreign_column = rel[1], rel[2]
+#                 join_condition = f'"{schema_name}"."{foreign_table}"."{foreign_column}" = "{schema_name}"."{primary_table}"."{primary_column}"'
+#                 query_parts.append(f'LEFT JOIN "{schema_name}"."{foreign_table}" ON {join_condition}')
+#                 break
+
+#     final_table = path[-1]
+
+#     # Constructing the final query
+#     where_clause = f' WHERE "{schema_name}"."{final_table}"."id" = \'{key_value}\' AND "{schema_name}"."{final_table}"."id" IS NOT NULL'
+#     return f'SELECT DISTINCT "{schema_name}"."{final_table}".* FROM "{schema_name}"."{starting_table}" ' + ' '.join(query_parts) + where_clause
+# def construct_join_clause(schema_name, primary_table, foreign_table, primary_column, foreign_column):
+#     return f'LEFT JOIN "{schema_name}"."{foreign_table}" ON "{schema_name}"."{primary_table}"."{primary_column}" = "{schema_name}"."{foreign_table}"."{foreign_column}"'
+
+def construct_join_clause(schema_name, primary_table, foreign_table, primary_column, foreign_column):
+    return f'LEFT JOIN "{schema_name}"."{foreign_table}" ON "{schema_name}"."{primary_table}"."{primary_column}" = "{schema_name}"."{foreign_table}"."{foreign_column}"'
+
+def construct_query_for_path_recursive(current_table, target_table, relationships_dict, schema_name, visited_tables, max_depth=5):
+    if max_depth <= 0:
+        return []
+
+    if current_table == target_table:
+        return []
+
+    for foreign_table, primary_column, foreign_column in relationships_dict.get(current_table, []):
+        if foreign_table in visited_tables:
+            continue
+
+        visited_tables.add(foreign_table)
+        if foreign_table == target_table:
+            return [construct_join_clause(schema_name, current_table, foreign_table, primary_column, foreign_column)]
+
+        deeper_join_clauses = construct_query_for_path_recursive(foreign_table, target_table, relationships_dict, schema_name, visited_tables, max_depth-1)
+        if deeper_join_clauses:
+            return [construct_join_clause(schema_name, current_table, foreign_table, primary_column, foreign_column)] + deeper_join_clauses
+
+    return []
+
+def construct_query_for_path(path, relationships_dict,starting_table, schema_name, key_value):
+    query_parts = []
+    visited_tables = set([starting_table])
+
+    for i in range(len(path) - 1):
+        query_parts += construct_query_for_path_recursive(path[i], path[i+1], relationships_dict, schema_name, visited_tables)
+
+    final_table = path[-1]
+    where_clause = f' WHERE "{schema_name}"."{starting_table}"."id" = \'{key_value}\' AND "{schema_name}"."{final_table}"."id" IS NOT NULL'
+    return f'SELECT DISTINCT "{schema_name}"."{final_table}".* FROM "{schema_name}"."{starting_table}" ' + ' '.join(query_parts) + where_clause
+
+def create_graph_reversed(relationships_dict):
+    G = nx.DiGraph()
+    for primary_table, relations in relationships_dict.items():
+        for foreign_table, primary_column, foreign_column in relations:
+            G.add_edge(foreign_table, primary_table, primary_key=foreign_column, foreign_key=primary_column)
+
+    return G
+def create_graph(relationships_dict):
+    G = nx.DiGraph()
+    for primary_table, relations in relationships_dict.items():
+        for foreign_table, primary_column, foreign_column in relations:
+            # Add edges as originally defined
+            G.add_edge(primary_table, foreign_table, primary_key=primary_column, foreign_key=foreign_column)
+    return G
+def find_all_paths3(graph, start_node, end_node):
+    """
+    Finds all simple paths (both direct and indirect) between start_node and end_node in the given graph.
+
+    Parameters:
+    graph (nx.Graph): The graph to search.
+    start_node: The node to start from.
+    end_node: The node to reach.
+
+    Returns:
+    list: A list of paths, where each path is represented as a list of nodes.
+    """
+    return list(nx.all_simple_paths(graph, start_node, end_node))
+            
+def construct_query_for_path3_reversed(schema_name, path, G, starting_table, key_value):
+    query_parts = []
+    for i in range(len(path) - 1):
+        # In the reversed graph, the 'primary_table' is actually the foreign table and vice versa
+        foreign_table = path[i]
+        primary_table = path[i + 1]
+
+        edge_data = G.get_edge_data(foreign_table, primary_table)
+        primary_column = edge_data['primary_key']
+        foreign_column = edge_data['foreign_key']
+
+        # The join condition needs to be reversed as well
+        join_condition = f'"{schema_name}"."{primary_table}"."{primary_column}" = "{schema_name}"."{foreign_table}"."{foreign_column}"'
+        query_parts.append(f'LEFT JOIN "{schema_name}"."{primary_table}" ON {join_condition}')
+
+    # The starting point of the query should be the first table in the reversed path
+    start_table = path[0]
+    final_table = path[-1]
+
+    # The WHERE clause should be based on the 'start_table' in the reversed graph
+    where_clause = f'WHERE "{schema_name}"."{start_table}"."id" = \'{key_value}\''
+
+    # The SELECT clause should fetch data from the 'final_table'
+    select_clause = f'SELECT DISTINCT "{schema_name}"."{final_table}".*'
+
+    # Construct the final query
+    return f'{select_clause} FROM "{schema_name}"."{start_table}" ' + ' '.join(query_parts) + ' ' + where_clause
+def construct_query_for_path3(schema_name, path, G, starting_table, key_value):
+    query_parts = []
+    for i in range(len(path) - 1):
+        primary_table = path[i]
+        foreign_table = path[i + 1]
+        edge_data = G.get_edge_data(primary_table, foreign_table)
+        primary_column = edge_data['primary_key']
+        foreign_column = edge_data['foreign_key']
+
+        # Original join condition
+        join_condition = f'"{schema_name}"."{foreign_table}"."{foreign_column}" = "{schema_name}"."{primary_table}"."{primary_column}"'
+        query_parts.append(f'LEFT JOIN "{schema_name}"."{foreign_table}" ON {join_condition}')
+
+    # The final table in the path for the SELECT clause
+    final_table = path[-1]
+    where_clause = f'WHERE "{schema_name}"."{starting_table}"."id" = \'{key_value}\''
+
+    # Construct the final query
+    return f'SELECT DISTINCT "{schema_name}"."{final_table}".* FROM "{schema_name}"."{starting_table}" ' + ' '.join(query_parts) + ' ' + where_clause
+starting_table = os.getenv('STARTING_TABLE', 'default_value_for_starting_table')
+starting_key_column = os.getenv('STARTING_KEY_COLUMN', 'default_value_for_starting_key_column')
+
+# For 'key_value', handle different data types (string/int)
+key_value_str = os.getenv('KEY_VALUE', 'default_value_for_key_value')
+try:
+    key_value = int(key_value_str)
+except ValueError:
+    key_value = key_value_str  # Use the string value if it's not an integer
+
+# Split the excluded tables into a list if they are provided as a comma-separated string
+excluded_tables_str = os.getenv('EXCLUDED_TABLES', '')
+excluded_tables = excluded_tables_str.split(',') if excluded_tables_str else []
+excluded_columns = {'modified_by_id', 'created_by_id'}
+# Extract relationships from the database
+relationships = extract_relationships(excluded_tables)
+
+# Generate the relationships dictionary
+relationships_dict = generate_relationships_dict(relationships,excluded_columns,starting_table)
+# Printing relationships_dict for demonstration
+with open("/app/outputs/relationships.txt", "w") as file:
+    for table, connected_tables in relationships_dict.items():
+        file.write(f"{table}: {connected_tables}\n")
+# Global chunk size for data processing
+CHUNK_SIZE = 10000  # You can adjust this value as needed
+# print("Hierarchy starting from '{}', for key '{}': {}".format(starting_table, starting_key_column, key_value))
+table_queries = find_related_tables_bfs(engine,starting_table, starting_key_column, key_value, common_dump_file_name, schema_name, excluded_tables=excluded_tables)
+# #def find_related_tables_bfs(engine, starting_table, start_table_key_column, key_value, common_dump_file_name, schema_name, excluded_tables=None, excluded_columns=None):
+# # And relations_dict is your relational dictionary
+# alternative_paths = find_alternative_paths(table_queries, relationships_dict, starting_table)
+# alternative_queries = construct_queries_for_alternative_paths(schema_name, alternative_paths, starting_key_column, key_value)
+# final_queries = combine_queries(table_queries, alternative_queries)
+with open("/app/outputs/tables_queries.txt", "w") as file:
+    for table, query in table_queries.items():
+        file.write(f'Table:{table}\n Query: {query}\n')   
+# Find all paths
+#all_paths = find_all_paths(relationships_dict, starting_table, starting_key_column, excluded_tables)
+
+
+
+G = create_graph(relationships_dict)
+queries = []
+
+# # Draw the graph
+# Generate the graph layout with more space between nodes
+pos = nx.spring_layout(G, seed=42, k=4.0)  # Increased 'k' for more space between nodes
+
+# Increase the figure size and adjust node and font sizes
+fig, ax = plt.subplots(figsize=(16, 18))  # Increased height to 18
+node_size = 3000  # Increased node size
+font_size = 16
+nx.draw(G, pos, with_labels=True, node_size=node_size, node_color="skyblue", font_size=10, font_color="black", font_weight="bold", arrows=True)
+plt.savefig('/app/outputs/graph.png')
+# # Display the graph
+# plt.show()
+with open("/app/outputs/finals.txt", "w") as file:
+    for table, query_list in table_queries.items():
+        paths = find_all_paths3(G, starting_table, table)
+        #file.write(f"DEBUG: starting {starting_table} to {table}, Paths: {paths}\n")  # Uncommented for debugging
+        queries = []
+        for path in paths:
+            query_for_path = construct_query_for_path3(schema_name, path, G, starting_table, key_value)  # Pass key_value
+            #file.write(f"DEBUG2: Path Query for {table}: {query_for_path}\n")  # Uncommented for debugging
+            queries.append(query_for_path)
+        
+        # Construct the final query
+        if len(queries) > 1:
+            final_query = ' UNION '.join(f'({q})' for q in queries)
+        elif len(queries) == 1:
+            final_query = queries[0]
+        else:
+            final_query = None  # Handle case with no paths
+
+        if final_query:
+            file.write(f"Final Query for Table {table}:\n{final_query}\n")
+        else:
+            file.write(f"No paths or queries found for Table {table}\n")
+#Write the paths to a file
+#output_file_path = '/app/outputs/paths.txt'
+
+# G = nx.DiGraph()
+
+# for primary_table, primary_column, foreign_table, foreign_column in relationships:
+#     G.add_edge(primary_table, foreign_table)
+# with open("/app/outputs/finals.txt", "w") as file:    
+#     for table, query in table_queries.items():
+#         all_paths = list(nx.all_simple_paths(G, source=starting_table, target=table))
+
+#         queries = [construct_query_for_path(path, relationships_dict,starting_table,schema_name,key_value) for path in all_paths]
+
+#         # Construct the final query
+#         if len(queries) > 1:
+#             final_query = ' UNION '.join(f'({q})' for q in queries)
+#         elif len(queries) == 1:
+#             final_query = queries[0]
+#         else:
+#             param_value = repr(key_value) if isinstance(key_value, str) else str(key_value)
+#             query_str_with_params = query[0].replace(":key_value", param_value)
+#             final_query = query_str_with_params # or some default query if no paths are found
+
+#         if final_query:
+#            file.write(f"Table: {table}")
+#            file.write(f"Query:\n{final_query}\n") 
+
+# with open("/app/outputs/finals.txt", "w") as file:
+#     for table, query in final_queries.items():
+#         file.write(f"Table: {table}")
+#         file.write(f"Query:\n{query}\n")
+
+
+# with open(output_file_path, 'w') as file:
+#     for path in all_paths:
+#         file.write(path + "\n")
+# with open("/app/outputs/finals.txt", "w") as file:
+#     for table, query in final_queries.items():
+#         file.write(f"Table: {table}")
+#         file.write(f"Query:\n{query}\n")
+
+
+#print(f"Related tables: {related_tables}")
+
+
+# # Specify the file path where you want to save the output
+# output_file_path = '/app/exports/related_tables_output.txt'
+
+# # Writing the related tables to a file
+# with open(output_file_path, 'w') as file:
+#     for table in related_tables:
+#         file.write(f"{table}\n")
+
+# print(f"Related tables have been written to {output_file_path}")
+
+# generate_truncate_sql('/app/exports/', related_tables)
+#engine.dispose()
+
+
