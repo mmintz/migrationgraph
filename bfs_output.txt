@@ -1,0 +1,86 @@
+Visiting: tenant,queue 0
+Table: tenant, Paths: [['tenant']]
+Visiting: campaign,queue 11
+Table: campaign, Paths: [[('campaign', 'LEFT JOIN "partner"."campaign" ON "partner"."tenant"."tenant_id" = "partner"."campaign"."id"'), 'campaign']]
+Visiting: commission_plan,queue 14
+Table: commission_plan, Paths: [[('commission_plan', 'LEFT JOIN "partner"."commission_plan" ON "partner"."tenant"."tenant_id" = "partner"."commission_plan"."id"'), 'commission_plan']]
+Visiting: customer,queue 15
+Table: customer, Paths: [[('customer', 'LEFT JOIN "partner"."customer" ON "partner"."tenant"."tenant_id" = "partner"."customer"."id"'), 'customer']]
+Visiting: email_template,queue 21
+Table: email_template, Paths: [[('email_template', 'LEFT JOIN "partner"."email_template" ON "partner"."tenant"."tenant_id" = "partner"."email_template"."id"'), 'email_template']]
+Visiting: gui_layout,queue 20
+Table: gui_layout, Paths: [[('gui_layout', 'LEFT JOIN "partner"."gui_layout" ON "partner"."tenant"."tenant_id" = "partner"."gui_layout"."id"'), 'gui_layout']]
+Visiting: gui_menu,queue 20
+Table: gui_menu, Paths: [[('gui_menu', 'LEFT JOIN "partner"."gui_menu" ON "partner"."tenant"."tenant_id" = "partner"."gui_menu"."id"'), 'gui_menu']]
+Visiting: landing_page,queue 19
+Table: landing_page, Paths: [[('landing_page', 'LEFT JOIN "partner"."landing_page" ON "partner"."tenant"."tenant_id" = "partner"."landing_page"."id"'), 'landing_page']]
+Visiting: offer,queue 19
+Table: offer, Paths: [[('offer', 'LEFT JOIN "partner"."offer" ON "partner"."tenant"."tenant_id" = "partner"."offer"."id"'), 'offer']]
+Visiting: queue,queue 21
+Table: queue, Paths: [[('queue', 'LEFT JOIN "partner"."queue" ON "partner"."tenant"."tenant_id" = "partner"."queue"."id"'), 'queue']]
+Visiting: server,queue 23
+Table: server, Paths: [[('server', 'LEFT JOIN "partner"."server" ON "partner"."tenant"."tenant_id" = "partner"."server"."id"'), 'server']]
+Visiting: tenant_smtp_settings,queue 30
+Table: tenant_smtp_settings, Paths: [[('tenant_smtp_settings', 'LEFT JOIN "partner"."tenant_smtp_settings" ON "partner"."tenant"."tenant_id" = "partner"."tenant_smtp_settings"."id"'), 'tenant_smtp_settings']]
+Visiting: wallet_settings,queue 29
+Table: wallet_settings, Paths: [[('wallet_settings', 'LEFT JOIN "partner"."wallet_settings" ON "partner"."tenant"."tenant_id" = "partner"."wallet_settings"."id"'), 'wallet_settings']]
+Visiting: commission_plan,queue 29
+Visiting: customer_campaign,queue 28
+Table: customer_campaign, Paths: [[('campaign', 'LEFT JOIN "partner"."campaign" ON "partner"."tenant"."tenant_id" = "partner"."campaign"."id"'), ('customer_campaign', 'LEFT JOIN "partner"."customer_campaign" ON "partner"."campaign"."campaign_id" = "partner"."customer_campaign"."id"'), 'customer_campaign']]
+Visiting: landing_page,queue 29
+Visiting: marketing_tool,queue 28
+Table: marketing_tool, Paths: [[('campaign', 'LEFT JOIN "partner"."campaign" ON "partner"."tenant"."tenant_id" = "partner"."campaign"."id"'), ('marketing_tool', 'LEFT JOIN "partner"."marketing_tool" ON "partner"."campaign"."campaign_id" = "partner"."marketing_tool"."id"'), 'marketing_tool']]
+Visiting: commission_plan_offer,queue 28
+Table: commission_plan_offer, Paths: [[('commission_plan', 'LEFT JOIN "partner"."commission_plan" ON "partner"."tenant"."tenant_id" = "partner"."commission_plan"."id"'), ('commission_plan_offer', 'LEFT JOIN "partner"."commission_plan_offer" ON "partner"."commission_plan"."commission_plan_id" = "partner"."commission_plan_offer"."id"'), 'commission_plan_offer']]
+Visiting: commission_plan_trade_group,queue 27
+Table: commission_plan_trade_group, Paths: [[('commission_plan', 'LEFT JOIN "partner"."commission_plan" ON "partner"."tenant"."tenant_id" = "partner"."commission_plan"."id"'), ('commission_plan_trade_group', 'LEFT JOIN "partner"."commission_plan_trade_group" ON "partner"."commission_plan"."commission_plan_id" = "partner"."commission_plan_trade_group"."id"'), 'commission_plan_trade_group']]
+Visiting: account,queue 27
+Table: account, Paths: [[('customer', 'LEFT JOIN "partner"."customer" ON "partner"."tenant"."tenant_id" = "partner"."customer"."id"'), ('account', 'LEFT JOIN "partner"."account" ON "partner"."customer"."customer_id" = "partner"."account"."id"'), 'account']]
+Visiting: account,queue 27
+Visiting: marketing_product,queue 26
+Table: marketing_product, Paths: [[('customer', 'LEFT JOIN "partner"."customer" ON "partner"."tenant"."tenant_id" = "partner"."customer"."id"'), ('marketing_product', 'LEFT JOIN "partner"."marketing_product" ON "partner"."customer"."id" = "partner"."marketing_product"."marketing_product_id"'), 'marketing_product']]
+Visiting: customer_campaign,queue 26
+Visiting: customer_campaign,queue 25
+Visiting: customer_campaign,queue 24
+Visiting: wallet,queue 23
+Table: wallet, Paths: [[('customer', 'LEFT JOIN "partner"."customer" ON "partner"."tenant"."tenant_id" = "partner"."customer"."id"'), ('wallet', 'LEFT JOIN "partner"."wallet" ON "partner"."customer"."customer_id" = "partner"."wallet"."id"'), 'wallet']]
+Visiting: gui_layout_item,queue 22
+Table: gui_layout_item, Paths: [[('gui_layout', 'LEFT JOIN "partner"."gui_layout" ON "partner"."tenant"."tenant_id" = "partner"."gui_layout"."id"'), ('gui_layout_item', 'LEFT JOIN "partner"."gui_layout_item" ON "partner"."gui_layout"."gui_layout_id" = "partner"."gui_layout_item"."id"'), 'gui_layout_item']]
+Visiting: marketing_tool,queue 21
+Visiting: commission_plan_offer,queue 20
+Visiting: cpa_offer_settings,queue 19
+Table: cpa_offer_settings, Paths: [[('offer', 'LEFT JOIN "partner"."offer" ON "partner"."tenant"."tenant_id" = "partner"."offer"."id"'), ('cpa_offer_settings', 'LEFT JOIN "partner"."cpa_offer_settings" ON "partner"."offer"."offer_id" = "partner"."cpa_offer_settings"."id"'), 'cpa_offer_settings']]
+Visiting: offer_symbol_group,queue 18
+Table: offer_symbol_group, Paths: [[('offer', 'LEFT JOIN "partner"."offer" ON "partner"."tenant"."tenant_id" = "partner"."offer"."id"'), ('offer_symbol_group', 'LEFT JOIN "partner"."offer_symbol_group" ON "partner"."offer"."offer_id" = "partner"."offer_symbol_group"."id"'), 'offer_symbol_group']]
+Visiting: commission_plan_offer,queue 18
+Visiting: customer_campaign,queue 17
+Visiting: server,queue 16
+Visiting: account,queue 15
+Visiting: commission_plan_trade_group,queue 14
+Visiting: deposit,queue 13
+Table: deposit, Paths: [[('server', 'LEFT JOIN "partner"."server" ON "partner"."tenant"."tenant_id" = "partner"."server"."id"'), ('deposit', 'LEFT JOIN "partner"."deposit" ON "partner"."server"."server_id" = "partner"."deposit"."id"'), 'deposit']]
+Visiting: order,queue 12
+Table: order, Paths: [[('server', 'LEFT JOIN "partner"."server" ON "partner"."tenant"."tenant_id" = "partner"."server"."id"'), ('order', 'LEFT JOIN "partner"."order" ON "partner"."server"."server_id" = "partner"."order"."id"'), 'order']]
+Visiting: order_rollup,queue 11
+Table: order_rollup, Paths: [[('server', 'LEFT JOIN "partner"."server" ON "partner"."tenant"."tenant_id" = "partner"."server"."id"'), ('order_rollup', 'LEFT JOIN "partner"."order_rollup" ON "partner"."server"."server_id" = "partner"."order_rollup"."id"'), 'order_rollup']]
+Visiting: rate,queue 10
+Table: rate, Paths: [[('server', 'LEFT JOIN "partner"."server" ON "partner"."tenant"."tenant_id" = "partner"."server"."id"'), ('rate', 'LEFT JOIN "partner"."rate" ON "partner"."server"."server_id" = "partner"."rate"."id"'), 'rate']]
+Visiting: symbol_group,queue 9
+Table: symbol_group, Paths: [[('server', 'LEFT JOIN "partner"."server" ON "partner"."tenant"."tenant_id" = "partner"."server"."id"'), ('symbol_group', 'LEFT JOIN "partner"."symbol_group" ON "partner"."server"."server_id" = "partner"."symbol_group"."id"'), 'symbol_group']]
+Visiting: trade_group,queue 10
+Table: trade_group, Paths: [[('server', 'LEFT JOIN "partner"."server" ON "partner"."tenant"."tenant_id" = "partner"."server"."id"'), ('trade_group', 'LEFT JOIN "partner"."trade_group" ON "partner"."server"."server_id" = "partner"."trade_group"."id"'), 'trade_group']]
+Visiting: wallet,queue 10
+Visiting: wallet,queue 9
+Visiting: marketing_product,queue 8
+Visiting: marketing_product,queue 7
+Visiting: trade_group,queue 6
+Visiting: trade_group,queue 5
+Visiting: marketing_product_tracking,queue 4
+Table: marketing_product_tracking, Paths: [[('customer', 'LEFT JOIN "partner"."customer" ON "partner"."tenant"."tenant_id" = "partner"."customer"."id"'), ('marketing_product', 'LEFT JOIN "partner"."marketing_product" ON "partner"."customer"."id" = "partner"."marketing_product"."marketing_product_id"'), ('marketing_product_tracking', 'LEFT JOIN "partner"."marketing_product_tracking" ON "partner"."marketing_product"."marketing_product_id" = "partner"."marketing_product_tracking"."id"'), 'marketing_product_tracking']]
+Visiting: symbol_group,queue 3
+Visiting: symbol,queue 2
+Table: symbol, Paths: [[('server', 'LEFT JOIN "partner"."server" ON "partner"."tenant"."tenant_id" = "partner"."server"."id"'), ('symbol_group', 'LEFT JOIN "partner"."symbol_group" ON "partner"."server"."server_id" = "partner"."symbol_group"."id"'), ('symbol', 'LEFT JOIN "partner"."symbol" ON "partner"."symbol_group"."symbol_group_id" = "partner"."symbol"."id"'), 'symbol']]
+Visiting: trade_group_settings,queue 1
+Table: trade_group_settings, Paths: [[('server', 'LEFT JOIN "partner"."server" ON "partner"."tenant"."tenant_id" = "partner"."server"."id"'), ('symbol_group', 'LEFT JOIN "partner"."symbol_group" ON "partner"."server"."server_id" = "partner"."symbol_group"."id"'), ('trade_group_settings', 'LEFT JOIN "partner"."trade_group_settings" ON "partner"."symbol_group"."symbol_group_id" = "partner"."trade_group_settings"."id"'), 'trade_group_settings']]
+Visiting: trade_group_settings,queue 0
+RETURNING PATHS : {'tenant': [['tenant']], 'campaign': [[('campaign', 'LEFT JOIN "partner"."campaign" ON "partner"."tenant"."tenant_id" = "partner"."campaign"."id"'), 'campaign']], 'commission_plan': [[('commission_plan', 'LEFT JOIN "partner"."commission_plan" ON "partner"."tenant"."tenant_id" = "partner"."commission_plan"."id"'), 'commission_plan']], 'customer': [[('customer', 'LEFT JOIN "partner"."customer" ON "partner"."tenant"."tenant_id" = "partner"."customer"."id"'), 'customer']], 'email_template': [[('email_template', 'LEFT JOIN "partner"."email_template" ON "partner"."tenant"."tenant_id" = "partner"."email_template"."id"'), 'email_template']], 'gui_layout': [[('gui_layout', 'LEFT JOIN "partner"."gui_layout" ON "partner"."tenant"."tenant_id" = "partner"."gui_layout"."id"'), 'gui_layout']], 'gui_menu': [[('gui_menu', 'LEFT JOIN "partner"."gui_menu" ON "partner"."tenant"."tenant_id" = "partner"."gui_menu"."id"'), 'gui_menu']], 'landing_page': [[('landing_page', 'LEFT JOIN "partner"."landing_page" ON "partner"."tenant"."tenant_id" = "partner"."landing_page"."id"'), 'landing_page']], 'offer': [[('offer', 'LEFT JOIN "partner"."offer" ON "partner"."tenant"."tenant_id" = "partner"."offer"."id"'), 'offer']], 'queue': [[('queue', 'LEFT JOIN "partner"."queue" ON "partner"."tenant"."tenant_id" = "partner"."queue"."id"'), 'queue']], 'server': [[('server', 'LEFT JOIN "partner"."server" ON "partner"."tenant"."tenant_id" = "partner"."server"."id"'), 'server']], 'tenant_smtp_settings': [[('tenant_smtp_settings', 'LEFT JOIN "partner"."tenant_smtp_settings" ON "partner"."tenant"."tenant_id" = "partner"."tenant_smtp_settings"."id"'), 'tenant_smtp_settings']], 'wallet_settings': [[('wallet_settings', 'LEFT JOIN "partner"."wallet_settings" ON "partner"."tenant"."tenant_id" = "partner"."wallet_settings"."id"'), 'wallet_settings']], 'customer_campaign': [[('campaign', 'LEFT JOIN "partner"."campaign" ON "partner"."tenant"."tenant_id" = "partner"."campaign"."id"'), ('customer_campaign', 'LEFT JOIN "partner"."customer_campaign" ON "partner"."campaign"."campaign_id" = "partner"."customer_campaign"."id"'), 'customer_campaign']], 'marketing_tool': [[('campaign', 'LEFT JOIN "partner"."campaign" ON "partner"."tenant"."tenant_id" = "partner"."campaign"."id"'), ('marketing_tool', 'LEFT JOIN "partner"."marketing_tool" ON "partner"."campaign"."campaign_id" = "partner"."marketing_tool"."id"'), 'marketing_tool']], 'commission_plan_offer': [[('commission_plan', 'LEFT JOIN "partner"."commission_plan" ON "partner"."tenant"."tenant_id" = "partner"."commission_plan"."id"'), ('commission_plan_offer', 'LEFT JOIN "partner"."commission_plan_offer" ON "partner"."commission_plan"."commission_plan_id" = "partner"."commission_plan_offer"."id"'), 'commission_plan_offer']], 'commission_plan_trade_group': [[('commission_plan', 'LEFT JOIN "partner"."commission_plan" ON "partner"."tenant"."tenant_id" = "partner"."commission_plan"."id"'), ('commission_plan_trade_group', 'LEFT JOIN "partner"."commission_plan_trade_group" ON "partner"."commission_plan"."commission_plan_id" = "partner"."commission_plan_trade_group"."id"'), 'commission_plan_trade_group']], 'account': [[('customer', 'LEFT JOIN "partner"."customer" ON "partner"."tenant"."tenant_id" = "partner"."customer"."id"'), ('account', 'LEFT JOIN "partner"."account" ON "partner"."customer"."customer_id" = "partner"."account"."id"'), 'account']], 'marketing_product': [[('customer', 'LEFT JOIN "partner"."customer" ON "partner"."tenant"."tenant_id" = "partner"."customer"."id"'), ('marketing_product', 'LEFT JOIN "partner"."marketing_product" ON "partner"."customer"."id" = "partner"."marketing_product"."marketing_product_id"'), 'marketing_product']], 'wallet': [[('customer', 'LEFT JOIN "partner"."customer" ON "partner"."tenant"."tenant_id" = "partner"."customer"."id"'), ('wallet', 'LEFT JOIN "partner"."wallet" ON "partner"."customer"."customer_id" = "partner"."wallet"."id"'), 'wallet']], 'gui_layout_item': [[('gui_layout', 'LEFT JOIN "partner"."gui_layout" ON "partner"."tenant"."tenant_id" = "partner"."gui_layout"."id"'), ('gui_layout_item', 'LEFT JOIN "partner"."gui_layout_item" ON "partner"."gui_layout"."gui_layout_id" = "partner"."gui_layout_item"."id"'), 'gui_layout_item']], 'cpa_offer_settings': [[('offer', 'LEFT JOIN "partner"."offer" ON "partner"."tenant"."tenant_id" = "partner"."offer"."id"'), ('cpa_offer_settings', 'LEFT JOIN "partner"."cpa_offer_settings" ON "partner"."offer"."offer_id" = "partner"."cpa_offer_settings"."id"'), 'cpa_offer_settings']], 'offer_symbol_group': [[('offer', 'LEFT JOIN "partner"."offer" ON "partner"."tenant"."tenant_id" = "partner"."offer"."id"'), ('offer_symbol_group', 'LEFT JOIN "partner"."offer_symbol_group" ON "partner"."offer"."offer_id" = "partner"."offer_symbol_group"."id"'), 'offer_symbol_group']], 'deposit': [[('server', 'LEFT JOIN "partner"."server" ON "partner"."tenant"."tenant_id" = "partner"."server"."id"'), ('deposit', 'LEFT JOIN "partner"."deposit" ON "partner"."server"."server_id" = "partner"."deposit"."id"'), 'deposit']], 'order': [[('server', 'LEFT JOIN "partner"."server" ON "partner"."tenant"."tenant_id" = "partner"."server"."id"'), ('order', 'LEFT JOIN "partner"."order" ON "partner"."server"."server_id" = "partner"."order"."id"'), 'order']], 'order_rollup': [[('server', 'LEFT JOIN "partner"."server" ON "partner"."tenant"."tenant_id" = "partner"."server"."id"'), ('order_rollup', 'LEFT JOIN "partner"."order_rollup" ON "partner"."server"."server_id" = "partner"."order_rollup"."id"'), 'order_rollup']], 'rate': [[('server', 'LEFT JOIN "partner"."server" ON "partner"."tenant"."tenant_id" = "partner"."server"."id"'), ('rate', 'LEFT JOIN "partner"."rate" ON "partner"."server"."server_id" = "partner"."rate"."id"'), 'rate']], 'symbol_group': [[('server', 'LEFT JOIN "partner"."server" ON "partner"."tenant"."tenant_id" = "partner"."server"."id"'), ('symbol_group', 'LEFT JOIN "partner"."symbol_group" ON "partner"."server"."server_id" = "partner"."symbol_group"."id"'), 'symbol_group']], 'trade_group': [[('server', 'LEFT JOIN "partner"."server" ON "partner"."tenant"."tenant_id" = "partner"."server"."id"'), ('trade_group', 'LEFT JOIN "partner"."trade_group" ON "partner"."server"."server_id" = "partner"."trade_group"."id"'), 'trade_group']], 'marketing_product_tracking': [[('customer', 'LEFT JOIN "partner"."customer" ON "partner"."tenant"."tenant_id" = "partner"."customer"."id"'), ('marketing_product', 'LEFT JOIN "partner"."marketing_product" ON "partner"."customer"."id" = "partner"."marketing_product"."marketing_product_id"'), ('marketing_product_tracking', 'LEFT JOIN "partner"."marketing_product_tracking" ON "partner"."marketing_product"."marketing_product_id" = "partner"."marketing_product_tracking"."id"'), 'marketing_product_tracking']], 'symbol': [[('server', 'LEFT JOIN "partner"."server" ON "partner"."tenant"."tenant_id" = "partner"."server"."id"'), ('symbol_group', 'LEFT JOIN "partner"."symbol_group" ON "partner"."server"."server_id" = "partner"."symbol_group"."id"'), ('symbol', 'LEFT JOIN "partner"."symbol" ON "partner"."symbol_group"."symbol_group_id" = "partner"."symbol"."id"'), 'symbol']], 'trade_group_settings': [[('server', 'LEFT JOIN "partner"."server" ON "partner"."tenant"."tenant_id" = "partner"."server"."id"'), ('symbol_group', 'LEFT JOIN "partner"."symbol_group" ON "partner"."server"."server_id" = "partner"."symbol_group"."id"'), ('trade_group_settings', 'LEFT JOIN "partner"."trade_group_settings" ON "partner"."symbol_group"."symbol_group_id" = "partner"."trade_group_settings"."id"'), 'trade_group_settings']]}
