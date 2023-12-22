@@ -1,0 +1,2 @@
+id,name,crm_id,tenant_id,schema_name,created_by_id,modified_by_id,created_at,modified_at,is_deleted,server_type_id
+8b672d7b-b19d-48fd-8742-a55ffcc6b8de,DIFX-MT5-LIVE01,5,1c05648d-07f9-48e4-a1c7-6807ba99046d,mt5_difx_live01,c8722344-3184-4d44-9c1b-43a16dac9eec,c8722344-3184-4d44-9c1b-43a16dac9eec,2021-11-19 08:46:27,2021-11-19 08:46:27,f,64a57318-3136-4116-8f74-3c9ac1b215f3
